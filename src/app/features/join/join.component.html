@@ -1,0 +1,34 @@
+<div class="join-page">
+  <div class="join-card">
+    <div class="join-logo">
+      <img src="assets/logo.png" alt="Metaslot" class="brand-logo">
+      <span>Metaslot</span>
+    </div>
+
+    @if (loading()) {
+      <div class="join-state">
+        <div class="loading-spinner"></div>
+        <h2>Entrando no grupo...</h2>
+        <p>Processando seu convite, aguarde um momento.</p>
+      </div>
+    } @else if (error()) {
+      <div class="join-state error">
+        <div class="state-icon">❌</div>
+        <h2>Erro ao entrar</h2>
+        <p>{{ error() }}</p>
+        <div class="join-actions">
+          <a routerLink="/dashboard" class="btn btn-primary">Ir ao Dashboard</a>
+          <a routerLink="/login" class="btn btn-outline">Login</a>
+        </div>
+      </div>
+    } @else {
+      <div class="join-state success">
+        <div class="state-icon">🎉</div>
+        <h2>Bem-vindo ao grupo!</h2>
+        <p>Você entrou em <strong>{{ spreadsheetName() }}</strong> com sucesso.</p>
+        <p class="redirect-msg">Redirecionando para o dashboard...</p>
+        <div class="loading-spinner success-spin"></div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,156 @@
+<div class="history-page">
+  <!-- HEADER -->
+  <header class="page-header">
+    <a [routerLink]="['/dashboard', spreadsheetId]" class="back-btn">← Dashboard</a>
+    <div class="header-info">
+      <h1>Histórico de Depósitos</h1>
+      @if (spreadsheetName()) {
+        <span class="sheet-label">{{ spreadsheetName() }}</span>
+      }
+    </div>
+    <div class="header-actions">
+      <a [routerLink]="['/deposit/new', spreadsheetId]" class="btn btn-primary btn-sm">
+        + Novo Depósito
+      </a>
+    </div>
+  </header>
+
+  <div class="history-content">
+    <!-- SUMMARY CARDS -->
+    <div class="summary-grid">
+      <div class="summary-card green">
+        <div class="summary-icon">✅</div>
+        <div class="summary-info">
+          <span class="summary-label">Total Concluído</span>
+          <span class="summary-value">{{ formatCurrency(totalCompleted()) }}</span>
+          <span class="summary-count">{{ completedCount() }} depósitos</span>
+        </div>
+      </div>
+      <div class="summary-card yellow">
+        <div class="summary-icon">⏳</div>
+        <div class="summary-info">
+          <span class="summary-label">Total Pendente</span>
+          <span class="summary-value">{{ formatCurrency(totalPending()) }}</span>
+          <span class="summary-count">{{ pendingCount() }} depósitos</span>
+        </div>
+      </div>
+      <div class="summary-card blue">
+        <div class="summary-icon">📊</div>
+        <div class="summary-info">
+          <span class="summary-label">Total Geral</span>
+          <span class="summary-value">{{ formatCurrency(totalCompleted() + totalPending()) }}</span>
+          <span class="summary-count">{{ deposits().length }} depósitos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="filter-group">
+        <span class="filter-label">Filtrar:</span>
+        <button class="filter-btn" [class.active]="statusFilter() === 'all'" (click)="statusFilter.set('all')">
+          Todos ({{ deposits().length }})
+        </button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'completed'" (click)="statusFilter.set('completed')">
+          Concluídos
+        </button>
+        <button class="filter-btn" [class.active]="statusFilter() === 'pending'" (click)="statusFilter.set('pending')">
+          Pendentes
+        </button>
+      </div>
+      <div class="sort-group">
+        <span class="filter-label">Ordenar:</span>
+        <select class="sort-select" (change)="sortBy.set($any($event.target).value)">
+          <option value="date">Data</option>
+          <option value="amount">Valor</option>
+          <option value="slot">Slot</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando histórico...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (filtered().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Nenhum depósito encontrado</h3>
+        @if (statusFilter() === 'all') {
+          <p>Faça seu primeiro depósito para começar!</p>
+          <a [routerLink]="['/deposit/new', spreadsheetId]" class="btn btn-primary">
+            Fazer Depósito
+          </a>
+        } @else {
+          <p>Nenhum depósito com esse filtro.</p>
+          <button class="btn btn-outline" (click)="statusFilter.set('all')">Ver todos</button>
+        }
+      </div>
+    } @else {
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table class="deposits-table">
+            <thead>
+              <tr>
+                <th>Slot</th>
+                <th>Valor</th>
+                <th>Quem Depositou</th>
+                <th>Nota</th>
+                <th>Data</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (deposit of filtered(); track deposit.id) {
+                <tr>
+                  <td>
+                    <span class="slot-badge">#{{ deposit.slotNumber }}</span>
+                  </td>
+                  <td>
+                    <span class="amount-text">{{ formatCurrency(deposit.amount) }}</span>
+                  </td>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar-sm">
+                        {{ deposit.user?.name ? deposit.user!.name[0].toUpperCase() : getUserInitials() }}
+                      </div>
+                      <span>{{ deposit.user?.name || currentUser()?.name }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="note-text">{{ deposit.note || '—' }}</span>
+                  </td>
+                  <td>
+                    <span class="date-text">{{ formatDate(deposit.createdAt) }}</span>
+                  </td>
+                  <td>
+                    <span class="badge"
+                      [class.badge-success]="deposit.status === 'completed'"
+                      [class.badge-warning]="deposit.status === 'pending'">
+                      {{ deposit.status === 'completed' ? 'Pago' : 'Pendente' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="action-btn delete" (click)="deleteDeposit(deposit)" title="Excluir">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          Mostrando {{ filtered().length }} de {{ deposits().length }} depósitos
+        </div>
+      </div>
+    }
+  </div>
+</div>

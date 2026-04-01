@@ -1,0 +1,266 @@
+<div class="dashboard-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/logo.png" alt="Metaslot" class="brand-logo">
+      <span class="brand-name">Metaslot</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a [routerLink]="['/dashboard', activeSheetId]" class="nav-item active">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      @if (activeSheetId) {
+        <a [routerLink]="['/history', activeSheetId]" class="nav-item">
+          <span class="nav-icon">📋</span>
+          <span>Histórico</span>
+        </a>
+        <a [routerLink]="['/group', activeSheetId]" class="nav-item">
+          <span class="nav-icon">👥</span>
+          <span>Grupo</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">{{ getUserInitials() }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ currentUser()?.name }}</span>
+          <span class="user-email">{{ currentUser()?.email }}</span>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <span>🚪</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Dashboard</h1>
+        @if (spreadsheets().length > 1) {
+          <select class="sheet-selector" (change)="selectSpreadsheet(spreadsheets()[$any($event.target).selectedIndex])">
+            @for (sheet of spreadsheets(); track sheet.id) {
+              <option [selected]="sheet.id === activeSheetId">{{ sheet.name }}</option>
+            }
+          </select>
+        } @else if (activeSpreadsheet()) {
+          <span class="sheet-name-badge">{{ activeSpreadsheet()?.name }}</span>
+        }
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" (click)="createSpreadsheet()">
+          + Nova Planilha
+        </button>
+        <div class="topbar-avatar" title="{{ currentUser()?.name }}">
+          {{ getUserInitials() }}
+        </div>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Carregando dados...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <p>{{ error() }}</p>
+        <button class="btn btn-primary" (click)="loadSpreadsheets()">Tentar novamente</button>
+      </div>
+    } @else if (!activeSpreadsheet()) {
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h2>Nenhuma planilha encontrada</h2>
+        <p>Crie uma planilha para começar o desafio dos 200 depósitos!</p>
+        <button class="btn btn-primary btn-lg" (click)="createSpreadsheet()">
+          Criar Primeira Planilha
+        </button>
+      </div>
+    } @else {
+      <!-- STATS CARDS -->
+      <div class="stats-grid">
+        <div class="stat-card balance-card">
+          <div class="stat-card-header">
+            <span class="stat-label">SALDO ACUMULADO</span>
+            <span class="stat-icon">💰</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(totalDeposited()) }}</div>
+          <div class="stat-sub">Meta: {{ formatCurrency(GOAL) }}</div>
+          <div class="progress-bar-container" style="margin-top: 12px;">
+            <div class="progress-bar-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+          <div class="progress-info">
+            <span>{{ progressPercent() }}% concluído</span>
+            <span>{{ formatCurrency(GOAL - totalDeposited()) }} restante</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">TOTAL DEPÓSITOS</span>
+            <span class="stat-icon">✅</span>
+          </div>
+          <div class="stat-value green">{{ completedCount() }}</div>
+          <div class="stat-sub">de 200 slots</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">MÉDIA MENSAL</span>
+            <span class="stat-icon">📈</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(monthlyAverage()) }}</div>
+          <div class="stat-sub">por mês</div>
+        </div>
+      </div>
+
+      <!-- DEPOSIT MAP -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2 class="section-card-title">Mapa de Depósitos</h2>
+          <div class="map-legend">
+            <span class="legend-item">
+              <span class="legend-dot green"></span> Concluído ({{ completedCount() }})
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot gray"></span> Disponível ({{ 200 - completedCount() }})
+            </span>
+          </div>
+        </div>
+
+        <div class="deposit-grid">
+          @for (slot of slots(); track slot.number) {
+            <div
+              class="slot-cell"
+              [class.completed]="slot.status === 'completed'"
+              [class.available]="slot.status === 'available'"
+              [title]="slot.status === 'completed' ? 'Slot #' + slot.number + ' - ' + formatCurrency(slot.deposit?.amount || slot.number) : 'Slot #' + slot.number + ' disponível'"
+            >
+              {{ slot.number }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- BOTTOM GRID -->
+      <div class="bottom-grid">
+        <!-- RECENT ACTIVITY -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2 class="section-card-title">Atividade Recente</h2>
+            @if (activeSheetId) {
+              <a [routerLink]="['/history', activeSheetId]" class="view-all-link">Ver todos →</a>
+            }
+          </div>
+
+          @if (recentDeposits().length === 0) {
+            <div class="empty-list">
+              <p>Nenhum depósito registrado ainda.</p>
+              @if (activeSheetId) {
+                <a [routerLink]="['/deposit/new', activeSheetId]" class="btn btn-primary btn-sm">
+                  Fazer Primeiro Depósito
+                </a>
+              }
+            </div>
+          } @else {
+            <div class="activity-list">
+              @for (deposit of recentDeposits(); track deposit.id) {
+                <div class="activity-item">
+                  <div class="activity-slot">
+                    <span class="slot-badge">#{{ deposit.slotNumber }}</span>
+                  </div>
+                  <div class="activity-info">
+                    <span class="activity-user">{{ deposit.user?.name || 'Você' }}</span>
+                    @if (deposit.note) {
+                      <span class="activity-note">{{ deposit.note }}</span>
+                    }
+                  </div>
+                  <div class="activity-right">
+                    <span class="activity-amount">{{ formatCurrency(deposit.amount) }}</span>
+                    <span class="activity-date">{{ formatDate(deposit.createdAt) }}</span>
+                  </div>
+                  <span class="badge" [class.badge-success]="deposit.status === 'completed'" [class.badge-warning]="deposit.status === 'pending'">
+                    {{ deposit.status === 'completed' ? 'Pago' : 'Pendente' }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2 class="section-card-title">Seu Desempenho</h2>
+          </div>
+
+          <div class="perf-cards">
+            <div class="perf-card">
+              <div class="perf-icon">📅</div>
+              <div class="perf-value">{{ formatCurrency(monthlyAverage()) }}</div>
+              <div class="perf-label">Média Mensal</div>
+            </div>
+            <div class="perf-card">
+              <div class="perf-icon">🎯</div>
+              <div class="perf-value">{{ completedCount() }}</div>
+              <div class="perf-label">Total Depósitos</div>
+            </div>
+          </div>
+
+          <div class="goal-progress">
+            <div class="goal-header">
+              <span>Progresso para Meta</span>
+              <strong>{{ progressPercent() }}%</strong>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" [style.width.%]="progressPercent()"></div>
+            </div>
+            <div class="goal-labels">
+              <span>R$0</span>
+              <span class="goal-remaining">{{ formatCurrency(GOAL - totalDeposited()) }} restante</span>
+              <span>R$20.100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-nav">
+    <a [routerLink]="['/dashboard', activeSheetId]" class="mobile-nav-item active">
+      <span>📊</span>
+      <span>Início</span>
+    </a>
+    @if (activeSheetId) {
+      <a [routerLink]="['/history', activeSheetId]" class="mobile-nav-item">
+        <span>📋</span>
+        <span>Histórico</span>
+      </a>
+      <a [routerLink]="['/deposit/new', activeSheetId]" class="mobile-nav-item fab">
+        <span>+</span>
+      </a>
+      <a [routerLink]="['/group', activeSheetId]" class="mobile-nav-item">
+        <span>👥</span>
+        <span>Grupo</span>
+      </a>
+    }
+    <button class="mobile-nav-item" (click)="logout()">
+      <span>🚪</span>
+      <span>Sair</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  @if (activeSheetId) {
+    <a [routerLink]="['/deposit/new', activeSheetId]" class="fab-btn" title="Novo Depósito">
+      +
+    </a>
+  }
+</div>

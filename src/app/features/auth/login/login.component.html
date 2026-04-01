@@ -1,0 +1,99 @@
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <img src="assets/logo.png" alt="Metaslot" class="brand-logo">
+      <span class="brand-text"><strong>Metaslot</strong></span>
+    </div>
+    <div class="auth-left-content">
+      <h2>Bem-vindo de volta!</h2>
+      <p>Acompanhe o progresso do seu desafio dos 200 depósitos e alcance sua meta de R$20.100,00.</p>
+      <div class="auth-stats">
+        <div class="auth-stat">
+          <span class="stat-num">200</span>
+          <span class="stat-lbl">Slots</span>
+        </div>
+        <div class="auth-stat">
+          <span class="stat-num">R$20k</span>
+          <span class="stat-lbl">Meta</span>
+        </div>
+        <div class="auth-stat">
+          <span class="stat-num">∞</span>
+          <span class="stat-lbl">Grupos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <h1>Entrar</h1>
+        <p>Acesse sua conta para continuar</p>
+      </div>
+
+      @if (error) {
+        <div class="alert alert-error">
+          <span>⚠️</span> {{ error }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+          />
+          @if (emailCtrl.invalid && emailCtrl.touched) {
+            <span class="error-msg">
+              @if (emailCtrl.hasError('required')) { E-mail é obrigatório. }
+              @else { Informe um e-mail válido. }
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Mínimo 6 caracteres"
+              autocomplete="current-password"
+            />
+            <button type="button" class="toggle-pw" (click)="showPassword = !showPassword">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          @if (passwordCtrl.invalid && passwordCtrl.touched) {
+            <span class="error-msg">
+              @if (passwordCtrl.hasError('required')) { Senha é obrigatória. }
+              @else { A senha deve ter pelo menos 6 caracteres. }
+            </span>
+          }
+        </div>
+
+        <button type="submit" class="btn btn-primary submit-btn" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner"></span> Entrando...
+          } @else {
+            Entrar
+          }
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <span>Não tem uma conta?</span>
+        <a routerLink="/register" [queryParams]="{ returnUrl: route.snapshot.queryParamMap.get('returnUrl') }" class="auth-link">Criar conta grátis</a>
+      </div>
+
+      <div class="back-home">
+        <a routerLink="/" class="back-link">← Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+</div>

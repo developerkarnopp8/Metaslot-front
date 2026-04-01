@@ -1,0 +1,94 @@
+.join-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-dark-blue) 0%, #283593 50%, #1565c0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.join-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 48px 40px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  animation: fadeIn 0.4s ease;
+
+  @media (max-width: 480px) { padding: 32px 24px; }
+}
+
+.join-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-dark-blue);
+
+  span:first-child { font-size: 28px; }
+}
+
+.join-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-dark-blue);
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+
+    strong { color: var(--primary-dark-blue); font-weight: 700; }
+  }
+
+  &.error h2 { color: var(--danger); }
+  &.success h2 { color: var(--primary-green); }
+}
+
+.state-icon {
+  font-size: 52px;
+  margin-bottom: 4px;
+}
+
+.loading-spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--light-blue);
+  border-top-color: var(--primary-dark-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 8px auto 0;
+
+  &.success-spin {
+    border-color: var(--light-green);
+    border-top-color: var(--primary-green);
+  }
+}
+
+.redirect-msg {
+  font-size: 12px !important;
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+.join-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .btn { padding: 10px 20px; font-size: 14px; }
+}

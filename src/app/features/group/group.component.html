@@ -1,0 +1,149 @@
+<div class="group-page">
+  <!-- HEADER -->
+  <header class="page-header">
+    <a [routerLink]="['/dashboard', spreadsheetId]" class="back-btn">← Dashboard</a>
+    <div class="header-info">
+      <h1>Gerenciar Grupo</h1>
+      @if (spreadsheet()) {
+        <span class="sheet-label">{{ spreadsheet()!.name }}</span>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Carregando grupo...</p>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <p>{{ error() }}</p>
+    </div>
+  } @else {
+    <div class="group-content">
+      <!-- SHARE SECTION -->
+      <div class="group-card">
+        <div class="card-header">
+          <h2>🔗 Convidar Membros</h2>
+          <p>Compartilhe o link abaixo para convidar pessoas para o grupo</p>
+        </div>
+
+        <div class="share-block">
+          <div class="share-url-row">
+            <input
+              type="text"
+              [value]="shareUrl()"
+              readonly
+              class="share-input"
+            />
+            <button class="btn btn-primary copy-btn" (click)="copyShareLink()">
+              @if (copied()) {
+                ✅ Copiado!
+              } @else {
+                📋 Copiar
+              }
+            </button>
+          </div>
+          <p class="share-hint">
+            Qualquer pessoa com este link pode entrar no grupo como membro.
+          </p>
+        </div>
+
+        <div class="token-display">
+          <span class="token-label">Token de Acesso:</span>
+          <code class="token-value">{{ spreadsheet()?.shareToken }}</code>
+        </div>
+      </div>
+
+      <!-- SPREADSHEET INFO -->
+      <div class="group-card">
+        <div class="card-header-row">
+          <h2>📋 Informações da Planilha</h2>
+          @if (isOwner() && !editing()) {
+            <button class="btn btn-outline btn-sm" (click)="editing.set(true)">
+              ✏️ Editar
+            </button>
+          }
+        </div>
+
+        @if (editing()) {
+          <div class="edit-form">
+            <div class="form-group">
+              <label>Nome da Planilha</label>
+              <input type="text" [(ngModel)]="editName" placeholder="Nome" />
+            </div>
+            <div class="form-group">
+              <label>Descrição (opcional)</label>
+              <textarea [(ngModel)]="editDescription" placeholder="Descrição do grupo..." rows="3"></textarea>
+            </div>
+            <div class="edit-actions">
+              <button class="btn btn-success" (click)="saveEdit()" [disabled]="saving()">
+                @if (saving()) { <span class="spinner"></span> Salvando... }
+                @else { ✓ Salvar }
+              </button>
+              <button class="btn btn-outline" (click)="editing.set(false)">Cancelar</button>
+            </div>
+          </div>
+        } @else {
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Nome</span>
+              <span class="info-value">{{ spreadsheet()?.name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Descrição</span>
+              <span class="info-value">{{ spreadsheet()?.description || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Status</span>
+              <span class="badge badge-success">{{ spreadsheet()?.isActive ? 'Ativo' : 'Inativo' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Seu Papel</span>
+              <span class="badge badge-info">{{ getRoleLabel(spreadsheet()?.memberRole || 'viewer') }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- MEMBERS -->
+      <div class="group-card">
+        <div class="card-header">
+          <h2>👥 Membros ({{ members().length }})</h2>
+        </div>
+
+        @if (members().length === 0) {
+          <div class="empty-members">
+            <p>Nenhum membro ainda. Compartilhe o link de convite!</p>
+          </div>
+        } @else {
+          <div class="members-list">
+            @for (member of members(); track member.id) {
+              <div class="member-row">
+                <div class="member-avatar">{{ getMemberInitials(member.name) }}</div>
+                <div class="member-info">
+                  <span class="member-name">{{ member.name }}</span>
+                  <span class="member-email">{{ member.email }}</span>
+                </div>
+                <div class="member-meta">
+                  <span class="badge"
+                    [class.badge-info]="member.role === 'owner'"
+                    [class.badge-success]="member.role === 'editor'"
+                    [class.badge-warning]="member.role === 'viewer'">
+                    {{ getRoleLabel(member.role) }}
+                  </span>
+                  <span class="member-joined">Desde {{ formatDate(member.joinedAt) }}</span>
+                </div>
+                @if (isOwner() && member.role !== 'owner') {
+                  <button class="remove-btn" (click)="removeMember(member)" title="Remover membro">
+                    ✕
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
