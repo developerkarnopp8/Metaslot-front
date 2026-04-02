@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Deposit } from '../models/deposit.model';
+import { environment } from '../../../../environments/environment';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = environment.apiUrl;
 
 export interface CreateDepositDto {
   slotNumber: number;

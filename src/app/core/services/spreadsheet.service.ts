@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Spreadsheet, Member } from '../models/spreadsheet.model';
+import { environment } from '../../../../environments/environment';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class SpreadsheetService {

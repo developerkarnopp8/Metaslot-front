@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { AuthResponse, User } from '../models/user.model';
+import { environment } from '../../../../environments/environment';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = environment.apiUrl;
 const TOKEN_KEY = 'deposits_token';
 const USER_KEY = 'deposits_user';
 
