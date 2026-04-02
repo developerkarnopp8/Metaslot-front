@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { SeoService } from '../../core/services/seo.service';
 
 interface DepositSlot {
   number: number;
@@ -14,8 +15,17 @@ interface DepositSlot {
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss']
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit {
+  private seo = inject(SeoService);
   menuOpen = false;
+
+  ngOnInit(): void {
+    this.seo.set({
+      title: 'Desafio dos 200 Depósitos | Poupe R$20.100 em Grupo',
+      description: 'Metaslot é a plataforma colaborativa do Desafio dos 200 Depósitos. Monte seu grupo, escolha seus slots e acumule R$20.100,00 juntos. Comece grátis agora!',
+      canonicalPath: '/'
+    });
+  }
 
   previewSlots: DepositSlot[] = Array.from({ length: 15 }, (_, i) => ({
     number: i + 1,

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /deposit/
+Disallow: /history/
+Disallow: /group/
+Disallow: /join/
+
+Sitemap: https://metaslot.aevon.online/sitemap.xml

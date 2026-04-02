@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SeoService } from '../../../core/services/seo.service';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
@@ -20,11 +21,20 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private seo = inject(SeoService);
+
+  ngOnInit(): void {
+    this.seo.set({
+      title: 'Criar Conta Grátis',
+      description: 'Crie sua conta gratuita no Metaslot, monte seu grupo e comece agora o Desafio dos 200 Depósitos rumo a R$20.100,00.',
+      canonicalPath: '/register'
+    });
+  }
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
